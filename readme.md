@@ -1,5 +1,4 @@
-##Scraping with Axios, Cherrio, NightMare in Meteor##
-##Very Simple##
+##Scraping of carhistory.com.au##
 
 Install node_modules:
 
@@ -7,7 +6,7 @@ Install node_modules:
 
 Run the app:
 
-### `npm start`
+### `node index.js`
 
 
 

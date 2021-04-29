@@ -1,13 +1,7 @@
-const axios = require('axios');
-const cheerio = require('cheerio');
-const NightMare = require('nightmare');
-
-const nightmare = NightMare({ show: false });
-
-module.exports = function (rego) {
+module.exports = function (rego, nightmare) {
     console.log("MyServiceNSW_Start...");
     let url = 'https://my.service.nsw.gov.au/MyServiceNSW/index#/rms/freeRegoCheck/details';
-    nightmare
+    return nightmare
       .goto(url)
       .wait('#formly_2_input_plateNumber_0')
       .type('#formly_2_input_plateNumber_0', rego)
@@ -18,22 +12,15 @@ module.exports = function (rego) {
       .evaluate(function(){
           return [document.querySelector('small.ng-binding').innerText, 
                   document.querySelector('small[ng-show="vehicleVinChassis"]').innerText, 
-                  document.querySelector('strong[ng-bind-html="to.boldLabelValue | sanitize"]').innerText];
+                  document.querySelector('div[bold-label-value="display.model.registrationExpiryDate | date:\'dd MMMM yyyy\'"] div[ng-show="to.boldLabelValue"] strong').innerText,
+                  document.querySelector('div[bold-label-value="display.model.ctpDetails.CTPExpiryDate | date:\'dd/MM/yyyy\'"] div[ng-show="to.boldLabelValue"] strong').innerText];
       })
       .end()
       .then(data => {
-        console.log(data);
+        // console.log(data);
         return data;
       })
       .catch(error => {
         console.error('Search failed:', error)
       })
 }
-
-// let getData = html => {
-//     const $ = cheerio.load(html);
-// 	data["rego_res"] = $(".list-group").find("strong").html();	// a value needed
-// 	data["vin_res"] = $(".list-group").find("small").html();  	// a value needed
-
-// 	console.log("MyServiceNSW_End...");
-// }

@@ -1,30 +1,57 @@
-const axios = require('axios');
-const cheerio = require('cheerio');
+module.exports = function (rego, state, nightmare) {
+    // console.log("Checkrego_Start...");
 
-let data = {};
+    let state_num = 2;
+    switch (state) {
+    case "QLD":
+        state_num = 1;
+        break;
+    case "NSW":
+        state_num = 2;
+        break;
+    case "ACT":
+        state_num = 3;
+        break;
+    case "SA":
+        state_num = 4;
+        break;
+    case "VIC":
+        state_num = 5;
+        break;
+    case "TAS":
+        state_num = 6;
+        break;
+    case "WA":
+        state_num = 7;
+        break;
+    case "NT":
+        state_num = 8;
+        break;
 
-module.exports = function (rego, state) {
-    console.log("Checkrego_Start...")
-    let url = "https://checkrego.com.au/search.php?state=" + state + "&rego=" + rego;
-    axios.get(url, {
-        headers: {
-            Cookie: '__cfduid=dfca305b1cff40b991525fa20387924d51619147539; PHPSESSID=is0u436qthannvs4gstkrnuhl3'
-        }
-    })
-    .then(res => {
-        // console.log(res.data);
-        getData(res.data);
-        return data;
-    })
-    .catch(err => {
-        console.log(err);
-    })
-}
+    default:
+        state_num = 2;
+    }
 
-let getData = html => {
-    const $ = cheerio.load(html);
-	data["rego_res"] = $(".list-group").find("strong").html();	// a value needed
-	data["vin_res"] = $(".list-group").find("small").html();  	// a value needed
-
-	console.log("Checkrego_End...");
+    let url = "https://checkrego.com.au";
+    return nightmare
+      .goto(url)
+      .wait('#rego')
+      .type('#rego', rego)
+      .wait('button.btn.dropdown-toggle.bs-placeholder.btn-default')
+      .evaluate(state_num => {
+        document.getElementById("state").options[state_num].selected = true;
+      }, state_num)
+      .click('#search')
+      .wait('.list-group')
+      .evaluate(function(){
+        return [document.querySelector('.list-group strong').innerText, document.querySelector('.list-group small').innerText];
+      })
+      .end()
+      .then(data => {
+        // console.log(data);
+        return data; // a value needed
+      })
+      .catch(error => {
+        console.error('Search failed:', error)
+      })
 }

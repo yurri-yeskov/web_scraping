@@ -1,29 +1,57 @@
-const axios = require('axios');
-const cheerio = require('cheerio');
+module.exports = function (rego, state, nightmare) {
+    // console.log("Carhistory_Start...");
 
-let data = {};
+    let state_num = 2;
+    switch (state) {
+    case "QLD":
+        state_num = 1;
+        break;
+    case "NSW":
+        state_num = 2;
+        break;
+    case "ACT":
+        state_num = 3;
+        break;
+    case "SA":
+        state_num = 4;
+        break;
+    case "VIC":
+        state_num = 5;
+        break;
+    case "TAS":
+        state_num = 6;
+        break;
+    case "WA":
+        state_num = 7;
+        break;
+    case "NT":
+        state_num = 8;
+        break;
 
-module.exports = function (rego, state) {
-    console.log("Carhistory_Start...")
-    let url = "https://secure.carhistory.com.au/checkout?frm=CH&rpt=CHPPSR&rego=" + rego + "&state=" + state;
-    axios.get(url, {
-        headers: {
-            Cookie: 'ASP.NET_SessionId=iskfs4zgvtd5eai1mgntdpx2; CarHistoryB2C=frm=CH&rpt=CHPPSR&usemockp2v=&cc=; TS019f711e=011fe472cae151ded12db33dc6a5e2cf5be798ab41e94f79f26891a234f6d2e5996bae0cae01753ea7d1803ed75c6800ca1d5c8c8067f6f8744ac25b5a898cc3b4c825589bf1b514c858a06011dd398b2ea2b97b04'
-        }
-    })
-    .then(res => {
-        // console.log(res.data);
-        getData(res.data);
-        return data;
-    })
-    .catch(err => {
-        console.log(err);
-    })
-}
+    default:
+        state_num = 2;
+    }
 
-let getData = html => {
-    const $ = cheerio.load(html);
-	data["vin_val"] = $("#hdnVin").val();   // a value needed
-
-	console.log("Carhistory_End...");
+    let url = "https://www.carhistory.com.au/";
+    return nightmare
+      .goto(url)
+      .wait('#RegoNumber2')
+      .type('#RegoNumber2', rego)
+      .wait(500)
+      .evaluate(state_num => {
+        document.getElementById("RegoState2").options[state_num].selected = true;
+      }, state_num)
+      .type('#RegoNumber2', '\u000d')
+      .wait('#hdnVin')
+      .evaluate(function(){
+        return document.getElementById('hdnVin').value;
+      })
+      .end()
+      .then(data => {
+        // console.log(data);
+        return data; // a value needed
+      })
+      .catch(error => {
+        console.error('Search failed:', error);
+      })
 }
