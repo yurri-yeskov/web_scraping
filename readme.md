@@ -2,11 +2,14 @@
 
 Install node_modules:
 
-```npm install```
+```shell script
+npm install
+```
 
 Run the app:
 
-```node index.js```
-
+```shell script
+node index.js
+```
 
 
