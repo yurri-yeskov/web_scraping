@@ -2,11 +2,11 @@
 
 Install node_modules:
 
-### `npm install`
+```npm install```
 
 Run the app:
 
-### `node index.js`
+```node index.js```
 
 
 
